@@ -4,8 +4,16 @@
 #include <fstream>
 #include <limits.h>
 #include <regex>
-#include <filesystem>
 #include <unistd.h>
+#if __has_include(<filesystem>)
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#elif __has_include(<experimental/filesystem>)
+  #include <experimental/filesystem> 
+  namespace fs = std::experimental::filesystem;
+#else
+  error "Missing the <filesystem> header."
+#endif
 
 #define ITERATIONS_NUMBER 50
 #define BILLION 1E9
@@ -45,7 +53,7 @@ void compute_and_remove_nb_events(long* total_nb_events, std::string trace_direc
 	long local_nb_events;
 	std::regex nb_events_file_pattern("[0-9]+_[a-z]+_nb_events");
 
-	for(auto const& entry : std::filesystem::directory_iterator(trace_directory)){
+	for(auto const& entry : fs::directory_iterator(trace_directory)){
 		if(std::regex_match( entry.path().stem().string(), nb_events_file_pattern)){
 			std::ifstream nb_events_file(entry.path().string());
 			if(nb_events_file.is_open()){
@@ -120,7 +128,7 @@ int main(int argc, char *argv[]){
 	copy_and_fill_metadata(total_nb_events, offset_s, offset_ns, ss_trace_directory.str());
 	
 	printf("Renaming CTF trace directory\n");
-	std::filesystem::rename(ss_trace_directory.str().c_str(), ss_trace_directory_renamed.str().c_str());
+	fs::rename(ss_trace_directory.str().c_str(), ss_trace_directory_renamed.str().c_str());
 
 	return 0;
 

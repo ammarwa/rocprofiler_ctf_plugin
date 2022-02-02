@@ -32,7 +32,7 @@ roctracer_plugin_lib.so: $(C_OBJECTS) $(AUX_OBJECTS) $(CPP_OBJECTS) $(ROCTRACER_
 	$(CXX)	$(LINKFLAGS) $^	-o $@ 
 
 post_processing:
-	$(CXX) $(BASIC_FLAGS) -std=c++17 src/post_processing.cpp -o $@
+	$(CXX) $(BASIC_FLAGS) -std=c++17 -stdlib=libc++ -lc++abi src/post_processing.cpp -o $@ -lstdc++fs
 
 clean:
 	$(RM) $(OBJ_DIR)/*.o rocprofiler_plugin_lib.so roctracer_plugin_lib.so
